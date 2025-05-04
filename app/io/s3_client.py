@@ -6,7 +6,7 @@ from minio.error import S3Error
 
 class S3Client:
     """
-    A simple class to work with S3-compatible storage.
+    A class to work with S3-compatible storage.
 
     This class provides methods to:
       - Upload files with their original names and a unique file_id.
