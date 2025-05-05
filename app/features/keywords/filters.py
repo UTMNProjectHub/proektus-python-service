@@ -4,7 +4,7 @@ from typing import Dict, List
 from rapidfuzz.distance import Levenshtein
 
 from app.preprocessing.nlp_tools import RUS_STOPWORDS
-from app.features.generic_lemma import get_generic_lemma
+from app.features.keywords.generic_lemma import get_generic_lemma
 from app.preprocessing.nlp_tools import RussianNLPTools
 
 _TOKEN_RE = re.compile(r"\w+", flags=re.U)
