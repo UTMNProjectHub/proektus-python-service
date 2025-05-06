@@ -3,6 +3,8 @@ from __future__ import annotations
 import logging
 import time
 from typing import Optional
+import json
+
 
 try:
     from openai import OpenAI
@@ -75,3 +77,33 @@ class GPTRefiner:
             "Пиши ТОЛЬКО описание, без вступлений и пояснений."
         )
         return self._call(system, sentence, max_tokens=120)
+
+    def ask_json(self, prompt: str, schema: dict, retries: int = 3) -> dict:
+        for _ in range(retries):
+            reply = self._call(
+                system_prompt=(
+                    "Ты — NER‑агент. Выдели из этого текста следующие сущности: курс, форма обучения (очная/заочная), "
+                    "фамилия имя отчество студентов, фамилия имя отчество преподавателей, название школы/института, "
+                    "факультет(department), направление обучения. "
+                    "Название университета возвращать не нужно"
+                    "Если сущность не найдена, верни для неё None"
+                    "Верни ТОЛЬКО JSON без форматирования и дополнительной информации. "
+                    f"Ключи: {list(schema.keys())}"
+                ),
+                user_prompt=prompt,
+                max_tokens=512,
+            )
+            try:
+                data = json.loads(reply)
+                return {k: data.get(k) for k in schema}
+            except Exception:
+                logger.warning("Invalid JSON from GPT: %s", reply[:120])
+                print(Exception)
+                print(reply + '\n')
+                logger.debug("Полный ответ GPT:\n%s", reply)
+                prompt = (
+                    f"Вот предыдущий невалидный JSON:\n{reply}\n\n"
+                    "Пожалуйста, исправь формат и верни ВАЛИДНЫЙ JSON без пояснений. "
+                    "Не меняй данные, только отформатируй корректно."
+                )
+        return {k: None for k in schema}
