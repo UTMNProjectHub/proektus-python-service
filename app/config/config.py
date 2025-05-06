@@ -10,5 +10,7 @@ def get_config():
         "S3_ACCESS_KEY": os.getenv("S3_ACCESS_KEY"),
         "S3_SECRET_KEY": os.getenv("S3_SECRET_KEY"),
         "S3_SECURE": os.getenv("S3_SECURE").lower() in ['true', '1'],
-        # todo: добавить другие параметры для подключения к PostgreSQL
+        "OPENAI_TOKEN": os.getenv("OPENAI_TOKEN"),
+        "DB_URL": os.getenv("DB_URL"),
+        "REDIS_URL": os.getenv("REDIS_URL"),
     }
