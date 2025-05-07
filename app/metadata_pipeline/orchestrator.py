@@ -23,20 +23,22 @@ __all__ = ["PipelineOrchestrator"]
 class PipelineOrchestrator:
     """High‑level class that orchestrates all sub‑components."""
 
-    def __init__(self, openai_key: Optional[str] = None):
+    def __init__(self, openai_key: str):
         self.cleaner = TextCleaner()
         self.keywords = HybridKeywordExtractor(top_k=12)
         self.summariser = Summariser(max_sentences=5)
         self.gpt = GPTRefiner(api_key=openai_key) if openai_key else None
+        self.ner = NamedEntityExtractor(self.gpt)
 
     def process(self, file_path: str | Path) -> Dict[str, Any]:
         raw = TextExtractor.extract(file_path)
+        raw_ner = TextExtractor.extract(file_path, is_all_text=True)
         if not raw:
             raise RuntimeError("No text extracted from file:: " + str(file_path))
         cleaned = self.cleaner.clean(raw)
         lemmatised = RussianNLPTools.lemmatise(cleaned)
         keywords = self.keywords.extract(cleaned)
-        named_ents = NamedEntityExtractor.extract(cleaned)
+        named_ents = self.ner.extract_entities(raw_ner)
         repo_links = RepoLinkExtractor.extract(raw)
         embedding = SentenceEmbedder.embed_document(cleaned).tolist()
         draft_summary = self.summariser.textrank(cleaned)
