@@ -192,3 +192,18 @@ class S3Client:
         full_prefix = f"{user_id}/{prefix}"
         objects = list(self.client.list_objects(self.bucket_name, prefix=full_prefix, recursive=True))
         return [obj.object_name for obj in objects]
+
+    def download_file_with_s3_key(self, s3_key, destination_path):
+        objects = list(self.client.list_objects(self.bucket_name, prefix=s3_key, recursive=True))
+        if not objects:
+            print(f"Файл {s3_key} не найден")
+            return None
+        if len(objects) > 1:
+            print(f"Найдено несколько объектов для s3_key= {s3_key}, ожидается один")
+        try:
+            self.client.fget_object(self.bucket_name, s3_key, destination_path)
+            print(f"Файл {s3_key} скачан в {destination_path}")
+            return s3_key
+        except S3Error as e:
+            print(f"Ошибка скачивания файла: {e}")
+            return None
