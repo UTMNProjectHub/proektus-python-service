@@ -49,8 +49,8 @@ def main():
             logger.exception("Ошибка в run_pipeline")
 
         response_payload = {
-            "user_id":    user_id,
-            "project_id": project_id,
+            "userId":    user_id,
+            "projectId": project_id,
             "status":     status,
             "message":    message,
         }
