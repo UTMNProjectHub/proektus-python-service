@@ -41,22 +41,30 @@ class SentenceEmbedder:
         return emb.mean(axis=0)
 
     @classmethod
-    def embed_project(cls, documents: List[str], weighting: str = "length") -> np.ndarray:
+    def embed_project(cls, documents: List[str], doc_embs: List[np.ndarray], weighting: str = "length") -> np.ndarray:
         if not documents:
             return np.zeros(768, dtype=np.float32)
 
-        doc_embs = [cls.embed_document(txt) for txt in documents]
+        if len(documents) != len(doc_embs):
+            raise ValueError(
+                "Число документов и эмбеддингов должно совпадать: "
+                f"{len(documents)} != {len(doc_embs)}"
+            )
 
         if weighting == "length":
-            lens = np.array([len(sent_tokenize(txt, language="russian")) for txt in documents], dtype=np.float32)
+            lens = np.array(
+                [len(sent_tokenize(txt, language="russian")) for txt in documents],
+                dtype=np.float32,
+            )
             lens[lens == 0] = 1.0
             weights = lens / lens.sum()
         else:
             weights = np.full(len(documents), 1.0 / len(documents), dtype=np.float32)
 
-        project_vec = np.average(np.stack(doc_embs), axis=0, weights=weights)
+        matrix = np.stack(doc_embs, axis=0)
+        project_vec = np.average(matrix, axis=0, weights=weights)
         norm = np.linalg.norm(project_vec)
         if norm > 0:
-            project_vec /= norm
+            project_vec = project_vec / norm
 
         return project_vec
