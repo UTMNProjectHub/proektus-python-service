@@ -1,0 +1,21 @@
+FROM python:3.10.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      build-essential git \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /myservice
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r /app/requirements.txt
+COPY . .
+
+
+ENV PYTHONPATH=/myservice
+
+CMD ["python", "app/workers/file_tasks_worker.py"]

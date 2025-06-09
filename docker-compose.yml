@@ -1,0 +1,8 @@
+version: "3.8"
+
+services:
+  worker:
+    image: proektus-app:latest
+    container_name: proektus_worker
+    restart: on-failure
+    tty: true
