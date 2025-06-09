@@ -16,3 +16,7 @@ pymorphy2~=0.9.1
 rapidfuzz~=3.13.0
 redis~=6.0.0
 psycopg2~=2.9.10
+pyee~=13.0.0
+PyMuPDF~=1.25.5
+python-docx~=1.1.2
+redis~=6.0.0
