@@ -26,7 +26,7 @@ class PipelineOrchestrator:
 
     def __init__(self, openai_key: str):
         self.cleaner = TextCleaner()
-        self.keywords = HybridKeywordExtractor(top_k=12)
+        self.keywords = HybridKeywordExtractor(top_k=7)
         self.summariser = Summariser(max_sentences=5)
         self.gpt = GPTRefiner(api_key=openai_key) if openai_key else None
         self.ner = NamedEntityExtractor(self.gpt)
@@ -73,6 +73,7 @@ class PipelineOrchestrator:
             embedding = metadata["embedding"]
             lemmatised = RussianNLPTools.lemmatise(cleaned)
             keywords = self.keywords.extract(cleaned)
+            keywords = list(self.gpt.refine_keywords(keywords).split(','))
             tags_list = self.tags_extractor.get_top_tags(embedding)
             metadata["lemmatised_text"] = lemmatised
             metadata["keywords"] = keywords
@@ -106,13 +107,13 @@ class PipelineOrchestrator:
             embedding = SentenceEmbedder.embed_project(cleaned_docs_list, embedding)
             lemmatised = RussianNLPTools.lemmatise(cleaned)
             keywords = self.keywords.extract(cleaned)
+            keywords = list(self.gpt.refine_keywords(keywords).split(','))
             tags_list = self.tags_extractor.get_top_tags(embedding)
             metadata["lemmatised_text"] = lemmatised
             metadata["keywords"] = keywords
             metadata["tags_list"] = tags_list
             metadata["embedding"] = embedding
             metadata["repository_links"] = repo_links
-            metadata["embedding"] = embedding
             metadata["named_entities"] = metadata_list[0]["named_entities"]
             if self.gpt:
                 annot = self.gpt.refine_annotation(draft_annot)
