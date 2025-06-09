@@ -42,7 +42,7 @@ class PipelineOrchestrator:
         # keywords = self.keywords.extract(cleaned) #
         named_ents = self.ner.extract_entities(raw_ner)
         repo_links = RepoLinkExtractor.extract(raw)
-        embedding = SentenceEmbedder.embed_document(cleaned).tolist() #
+        embedding = SentenceEmbedder.embed_document(cleaned)
         draft_summary = self.summariser.textrank(cleaned)
         draft_descr = self.summariser.description_sentence(cleaned)
         draft_annot = draft_summary
@@ -111,6 +111,9 @@ class PipelineOrchestrator:
             metadata["keywords"] = keywords
             metadata["tags_list"] = tags_list
             metadata["embedding"] = embedding
+            metadata["repository_links"] = repo_links
+            metadata["embedding"] = embedding
+            metadata["named_entities"] = metadata_list[0]["named_entities"]
             if self.gpt:
                 annot = self.gpt.refine_annotation(draft_annot)
                 summary = self.gpt.refine_summary(draft_summary)
@@ -118,4 +121,8 @@ class PipelineOrchestrator:
                 metadata["summary"] = summary
                 metadata["description"] = descr
                 metadata["annotation"] = annot
+            else:
+                metadata["summary"] = draft_summary
+                metadata["description"] = draft_descr
+                metadata["annotation"] = draft_annot
             return metadata
