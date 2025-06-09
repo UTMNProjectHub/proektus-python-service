@@ -97,7 +97,7 @@ class GPTRefiner:
                 data = json.loads(reply)
                 return {k: data.get(k) for k in schema}
             except Exception:
-                logger.warning("Invalid JSON from GPT: %s", reply[:120])
+                logger.warning("Invalid JSON from GPT: %s", reply[:200])
                 print(Exception)
                 print(reply + '\n')
                 logger.debug("Полный ответ GPT:\n%s", reply)
@@ -107,3 +107,13 @@ class GPTRefiner:
                     "Не меняй данные, только отформатируй корректно."
                 )
         return {k: None for k in schema}
+
+    def refine_keywords(self, keywords: list):
+        system = (
+            "Ты — ассистент, который проверяет ключевые слова текста на корректность. "
+            "Ты должен проверить, являются ли эти слова - ключевыми словами. если нет, то тебе нужно обобщить "
+            "некоторые из них и предоставить в ответе только итоговые слова через запятую. "
+            "Если в списке содержатся имена людей, то не включай их в конечный список. "
+            "Пиши ТОЛЬКО ключевые слова через запятую."
+        )
+        return self._call(system, ", ".join(keywords))
