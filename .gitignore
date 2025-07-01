@@ -1,0 +1,7 @@
+.venv
+.idea
+.env
+app/features/keywords/__pycache__/
+app/features/__pycache__/
+app/io/__pycache__/
+app/refinement/__pycache__/
