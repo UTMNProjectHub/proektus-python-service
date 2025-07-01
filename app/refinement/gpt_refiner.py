@@ -4,6 +4,7 @@ import logging
 import time
 from typing import Optional
 import json
+from time import sleep
 
 
 try:
@@ -47,7 +48,9 @@ class GPTRefiner:
                     max_tokens=max_tokens,
                     temperature=0.0,
                 )
-                return response.choices[0].message.content.strip()
+                res = response.choices[0].message
+                sleep(0.3)
+                return res.content.strip()
             except Exception as e:
                 logger.warning(f"GPT error: {e}; retry {attempt+1}/3")
                 time.sleep(2 ** attempt)
@@ -94,12 +97,13 @@ class GPTRefiner:
                 max_tokens=512,
             )
             try:
-                data = json.loads(reply)
+                data = reply
+                while '\n' in data:
+                    data = data.replace('\n', '')
+                data = json.loads(data)
                 return {k: data.get(k) for k in schema}
             except Exception:
                 logger.warning("Invalid JSON from GPT: %s", reply[:200])
-                print(Exception)
-                print(reply + '\n')
                 logger.debug("Полный ответ GPT:\n%s", reply)
                 prompt = (
                     f"Вот предыдущий невалидный JSON:\n{reply}\n\n"
