@@ -60,7 +60,7 @@ class MetadataDBClient:
                         execute_values(
                             cur,
                             """
-                            INSERT INTO project_keys (project_id, tag)
+                            INSERT INTO project_keys (project_id, key)
                             VALUES %s
                             ON CONFLICT (project_id, key) DO NOTHING
                             """,
